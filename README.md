@@ -24,9 +24,7 @@ architecture and code, not data.
 
 ## Status
 
-🚧 Early days — Week 1 of a 30-week solo build (Docker fundamentals, AWS
-bootstrap, vnstock smoke test). Nothing runnable yet; first shippable
-container lands in Week 2.
+Week 1 done: repo + first container + AWS live with $200 credits + 26 years of market data pulled locally.
 
 Planned stack: Docker · FastAPI · Postgres · Terraform · AWS (ECS, RDS,
 Lambda) · Redpanda · ClickHouse · Dagster · dbt · Metabase
