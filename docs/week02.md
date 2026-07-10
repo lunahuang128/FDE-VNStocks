@@ -14,3 +14,5 @@
 ## Docker Cache experiment
 -  edit the python script (layer 5), rerun. [+] Building 1.6s (10/10). All layer 1-4 are cached
 -  edit the requirement.txt (layer 3), rerun. [+] Building 38.0s (10/10). Rebuilding layers 3-5 
+-  Editing code = only layer 5 rebuilds (1.6s) because pip install sits below it. Editing requirements = layers 3–5 rebuild (38s) because the install sits on top of the changed layer. Order deps before code so the common case (code edits) stays cheap
+
