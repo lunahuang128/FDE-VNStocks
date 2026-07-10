@@ -11,3 +11,6 @@
 -  ✓ data/funds/SSISCA.csv   2165 rows
 -  ✓ data/funds/VESAF.csv   1459 rows
 
+## Docker Cache experiment
+-  edit the python script (layer 5), rerun. [+] Building 1.6s (10/10). All layer 1-4 are cached
+-  edit the requirement.txt (layer 3), rerun. [+] Building 38.0s (10/10). Rebuilding layers 3-5 
