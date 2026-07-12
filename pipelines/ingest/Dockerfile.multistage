@@ -1,0 +1,61 @@
+# syntax=docker/dockerfile:1
+
+# =============================================================================
+# STAGE 1 — "builder"  (the kitchen: allowed to make a mess)
+# =============================================================================
+FROM python:3.12-slim AS builder
+# Same base as before, but note "AS builder" — we NAME this stage so a later
+# stage can copy things out of it. This stage exists only to install deps;
+# it will NOT be shipped.
+
+WORKDIR /app
+
+# Create a virtual environment at /opt/venv and install into it.
+# Why a venv? Because a venv is a single self-contained folder holding all
+# your libraries. That makes it one clean thing to copy into stage 2 later —
+# instead of hunting for packages scattered across the system Python.
+RUN python -m venv /opt/venv
+# Put the venv's bin/ first on PATH so `pip` below is the venv's pip, and
+# anything we run uses the venv's Python. (Setting PATH is the documented
+# way to "activate" a venv without a shell.)
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+# Exactly the cached-layer trick from v1: requirements copied alone, installed
+# before code, so this slow step stays cached when only code changes.
+
+# =============================================================================
+# STAGE 2 — "runtime"  (the shipping box: only what's needed to run)
+# =============================================================================
+FROM python:3.12-slim AS runtime
+# A BRAND-NEW image from the clean base. None of stage 1's mess (pip caches,
+# build cruft) exists here. We only bring across what we explicitly copy.
+
+# ---- create a non-root user to run as ----
+RUN useradd --create-home --uid 1000 app
+# By default a container runs as root. That's poor hygiene: if anything goes
+# wrong, it's root inside the container. We make an unprivileged user "app"
+# and switch to it below. Basic security posture that CI and AWS expect.
+
+WORKDIR /app
+
+# ---- bring the finished venv across from the builder ----
+COPY --from=builder /opt/venv /opt/venv
+# THE multi-stage move. Copy the fully-installed venv out of the "builder"
+# stage into this clean image. All your libraries arrive in one shot; none of
+# the tooling that built them does.
+ENV PATH="/opt/venv/bin:$PATH"
+# Same PATH trick so this image's Python is the venv's Python.
+
+# ---- copy your code ----
+COPY . .
+# Your ingest.py etc. Copied last (cache-friendly) as before.
+
+# ---- drop privileges ----
+USER app
+# Everything from here — including the running container — is the "app" user,
+# not root.
+
+ENTRYPOINT ["python", "ingest.py"]
+CMD ["--help"]
