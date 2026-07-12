@@ -1,0 +1,17 @@
+# ---------------------------------------------------------------------------
+# pipelines/ingest — pinned dependencies
+#
+# These MUST be the exact versions you installed and tested in Week 1.
+# Do NOT trust the numbers below blindly — regenerate them from YOUR venv:
+#
+#     source .venv/bin/activate         # the venv from Week 1
+#     pip freeze | grep -iE '^(vnstock|vnai|pandas|tzdata)=='
+#
+# Paste the output over the lines below. Exact "==" pins mean every machine
+# (and every Docker build in Session B) installs byte-identical libraries.
+# ---------------------------------------------------------------------------
+
+vnstock==4.0.4
+vnai==2.4.9
+pandas==2.3.3
+tzdata==2026.2
